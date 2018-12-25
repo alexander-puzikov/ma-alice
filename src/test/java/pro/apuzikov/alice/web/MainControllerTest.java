@@ -8,7 +8,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import pro.apuzikov.alice.math.NumberGenerator;
+import pro.apuzikov.alice.service.AttitudeService;
 import pro.apuzikov.alice.service.ResponseService;
+import pro.apuzikov.alice.state.StateProcessorFactory;
+import pro.apuzikov.alice.util.SessionStorage;
+
+import java.util.Random;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -26,11 +32,12 @@ public class MainControllerTest {
 
     @Before
     public void setup() {
-        MainController mainController = new MainController();
-        mainController.setResponseService(new ResponseService());
+        ResponseService responseService = new ResponseService();
+        responseService.setSessionStorage(new SessionStorage());
+        responseService.setProcessorFactory(new StateProcessorFactory());
+        MainController mainController = new MainController(responseService);
         this.mockMvc = standaloneSetup(mainController).build();
     }
-
 
     @Test
     public void testSayHelloWorld() throws Exception {

@@ -28,6 +28,10 @@ public class SessionStorage {
         return cache.get(key).getValue();
     }
 
+    public boolean containsKey(String key) {
+        return cache.containsKey(key);
+    }
+
     //Todo: normal cache for sessions
     public void cleanUp() {
         if (new Date().getTime() - creationDate.getTime() > CLEAN_MILLIS) {
@@ -42,8 +46,13 @@ public class SessionStorage {
         }
     }
 
+    public void delete(String key) {
+        cache.remove(key);
+    }
+
     private static class CacheInfo<T> {
         Date date;
+        long latency = 1;
         T value;
 
         public CacheInfo(T value) {
@@ -51,8 +60,18 @@ public class SessionStorage {
             this.value = value;
         }
 
+        public CacheInfo(T value, long latency) {
+            this.date = new Date();
+            this.value = value;
+            this.latency = latency;
+        }
+
         public Date getDate() {
             return date;
+        }
+
+        public long getLatency() {
+            return latency;
         }
 
         public T getValue() {

@@ -1,10 +1,21 @@
 package pro.apuzikov.alice.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pro.apuzikov.alice.GameLevel;
+import pro.apuzikov.alice.math.NumberGenerator;
+import pro.apuzikov.alice.state.Result;
+import pro.apuzikov.alice.state.StateProcessor;
+import pro.apuzikov.alice.state.StateProcessorFactory;
 import pro.apuzikov.alice.util.SessionStorage;
+import pro.apuzikov.alice.util.exception.ResponseException;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Random;
+
+import static pro.apuzikov.alice.state.SpeachStates.*;
+import static pro.apuzikov.alice.util.messages.ResponseMessages.*;
 
 /**
  * {
@@ -32,37 +43,52 @@ import java.util.LinkedHashMap;
 @Service
 public class ResponseService {
 
+    private final static int START_MESSAGE_ID = 0;
 
     private SessionStorage sessionStorage;
+    private StateProcessorFactory processorFactory;
 
-    public HashMap getResponse(LinkedHashMap data) {
+    public HashMap getResponse(LinkedHashMap data) throws ResponseException {
         HashMap<String, Object> responseData = new HashMap<>();
-        data.get("command");
+        LinkedHashMap request = (LinkedHashMap) data.get("request");
         LinkedHashMap inputSession = (LinkedHashMap) data.get("session");
         HashMap<String, Object> response = new HashMap<>();
-        response.put("text", getText());
-        response.put("tts", getTextToSpeech());
-        response.put("end_session", true);
-        HashMap<String, Object> responseSession = new HashMap<>();
-        responseSession.put("session_id", inputSession.get("session_id"));
-        responseSession.put("message_id", inputSession.get("message_id"));
-        responseSession.put("user_id", inputSession.get("user_id"));
+        response.put("end_session", false);
+        String currentSessionId = inputSession.get("session_id").toString();
+        Session session;
+        Result result = null;
+        if ((int) inputSession.get("message_id") == START_MESSAGE_ID || !sessionStorage.containsKey(currentSessionId)) {
+            if (sessionStorage.containsKey(currentSessionId)) {
+                sessionStorage.delete(currentSessionId);
+            }
+            session = new Session(STARTING);
+            sessionStorage.put(currentSessionId, session);
+            result = new Result(STARTING, WELCOME_MESSAGE, WELCOME_MESSAGE, false);
+        } else {
+            session = (Session) sessionStorage.get(currentSessionId);
+            StateProcessor processor = processorFactory.getStateProcessor(session.getState());
+            String command = request.get("command").toString();
+            result = processor.process(session.getState(), command);
+            session.setState(result.getState());
+            session.addToResult(result.getValue());
+        }
+        response.put("end_session", result.isEndSession());
+        response.put("text", result.getText());
+        response.put("tts", result.getTts());
         responseData.put("response", response);
-        responseData.put("session", responseSession);
+        responseData.put("session", inputSession);
         responseData.put("version", "1.0");
+        session.getDialog().add(new Object[]{request, response});
         return responseData;
     }
 
-    private String getText() {
-        return "";
-    }
-
-    private String getTextToSpeech() {
-        return "";
-    }
-
-
+    @Autowired
     public void setSessionStorage(SessionStorage sessionStorage) {
         this.sessionStorage = sessionStorage;
+    }
+
+    @Autowired
+    public void setProcessorFactory(StateProcessorFactory processorFactory) {
+        this.processorFactory = processorFactory;
     }
 }
