@@ -20,7 +20,7 @@ public abstract class DefaultStateProcessor implements StateProcessor {
     protected Random random;
 
     @Override
-    public Result process(SpeachStates previousState, String command) {
+    public Result process(String command, Session session) {
         boolean endSession = false;
         String text, tts;
         SpeachStates nextSpeachState;

@@ -9,7 +9,7 @@ public class ResponseMessages {
     public static final String ENDING_MESSAGE = "Ок, я поняла, заканчиваем...";
 
     public static final String OBSCENE_MESSAGE = "Не говори так больше";
-
+    public static final String GO_ON_MESSAGE = "Поехали!?";
     public static final String[] END_MESSAGE = {"Пока пока!", "До свидания!", "Пока! Заходи ещё!"};
 
 }

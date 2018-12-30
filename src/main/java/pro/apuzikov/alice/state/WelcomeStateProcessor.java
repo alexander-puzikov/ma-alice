@@ -1,6 +1,7 @@
 package pro.apuzikov.alice.state;
 
 import org.springframework.stereotype.Component;
+import pro.apuzikov.alice.service.Session;
 
 import static pro.apuzikov.alice.util.messages.ResponseMessages.WELCOME_MESSAGE;
 
@@ -8,7 +9,7 @@ import static pro.apuzikov.alice.util.messages.ResponseMessages.WELCOME_MESSAGE;
 public class WelcomeStateProcessor extends DefaultStateProcessor {
 
     @Override
-    public Result process(SpeachStates previousState, String command) {
+    public Result process(String command, Session session) {
         return new Result(nextPositiveState(), getPositiveText(), getPositiveTTS(), false);
     }
 

@@ -8,6 +8,12 @@ public class Session {
     private int result;
     private SpeachStates state;
     private List<Object[]> dialog;
+    private String sessionId;
+
+    public Session(int result, SpeachStates state, String sessionId) {
+        this(result, state);
+        this.sessionId = sessionId;
+    }
 
     public Session(int result, SpeachStates state) {
         this(state);
@@ -42,5 +48,9 @@ public class Session {
 
     public void addToResult(int value) {
         result += value;
+    }
+
+    public String getId() {
+        return sessionId;
     }
 }

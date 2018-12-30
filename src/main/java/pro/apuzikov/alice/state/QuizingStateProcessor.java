@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pro.apuzikov.alice.GameLevel;
 import pro.apuzikov.alice.math.NumberGenerator;
+import pro.apuzikov.alice.service.Session;
 
 import static pro.apuzikov.alice.state.SpeachStates.*;
 import static pro.apuzikov.alice.util.messages.ResponseMessages.*;
@@ -15,7 +16,7 @@ public class QuizingStateProcessor extends DefaultStateProcessor {
     private NumberGenerator numberGenerator;
 
     @Override
-    public Result process(SpeachStates previousState, String command) {
+    public Result process(String command, Session session) {
         boolean endSession = false;
         String text, tts;
         SpeachStates nextSpeachState;
@@ -24,6 +25,7 @@ public class QuizingStateProcessor extends DefaultStateProcessor {
             if (!attitudeService.isDecline(command)) {
                 text = getPositiveText(value);
                 tts = getPositiveTTS(value);
+                session.addToResult(value);
                 nextSpeachState = nextPositiveState();
             } else {
                 text = ERROR_MESSAGE;

@@ -1,6 +1,7 @@
 package pro.apuzikov.alice.state;
 
 import org.springframework.stereotype.Component;
+import pro.apuzikov.alice.service.Session;
 
 import static pro.apuzikov.alice.state.SpeachStates.ANSWERED;
 
@@ -8,7 +9,7 @@ import static pro.apuzikov.alice.state.SpeachStates.ANSWERED;
 public class HappyEndedStateProcessor extends DefaultStateProcessor {
 
     @Override
-    public Result process(SpeachStates previousState, String command) {
+    public Result process(String command, Session session) {
         return new Result(nextPositiveState(), getPositiveText(), getPositiveTTS(), false);
     }
 
@@ -19,7 +20,7 @@ public class HappyEndedStateProcessor extends DefaultStateProcessor {
 
     @Override
     protected String getPositiveTTS() {
-        return "И ответ ";
+        return "И ваш ответ?";
     }
 
     @Override

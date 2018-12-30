@@ -1,6 +1,10 @@
 package pro.apuzikov.alice.state;
 
 import org.springframework.stereotype.Component;
+import pro.apuzikov.alice.service.Session;
+
+import java.util.LinkedHashMap;
+import java.util.List;
 
 import static pro.apuzikov.alice.state.SpeachStates.ENDED;
 import static pro.apuzikov.alice.state.SpeachStates.UNKNOWN_CONTINUE;
@@ -11,14 +15,16 @@ import static pro.apuzikov.alice.util.messages.ResponseMessages.ERROR_MESSAGE;
 public class UnknownStateProcessor extends DefaultStateProcessor {
 
     @Override
-    public Result process(SpeachStates previousState, String command) {
+    public Result process(String command, Session session) {
         boolean endSession = false;
+        SpeachStates previousState = session.getState();
         String text, tts;
         SpeachStates nextSpeachState;
         if (attitudeService.isAgree(command)) {
             if (!attitudeService.isDecline(command)) {
-                text = getPositiveText(previousState);
-                tts = getPositiveTTS(previousState);
+                LinkedHashMap[] dialog = (LinkedHashMap[]) session.getDialog().get(session.getDialog().size() - 1);
+                text = dialog[0].get("command").toString();
+                tts = text;
                 nextSpeachState = previousState;
             } else {
                 text = ERROR_MESSAGE;
@@ -33,14 +39,6 @@ public class UnknownStateProcessor extends DefaultStateProcessor {
             endSession = true;
         }
         return new Result(nextSpeachState, text, tts, endSession);
-    }
-
-    private String getPositiveText(SpeachStates previousState) {
-        return null;
-    }
-
-    private String getPositiveTTS(SpeachStates previousState) {
-        return null;
     }
 
     @Override
